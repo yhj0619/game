@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Speed Typing Game</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { min-height:100vh; margin:0; padding:24px; display:grid; place-items:center; overflow:hidden; color:#eef2ff; font-family:Arial,"Malgun Gothic",sans-serif; background:radial-gradient(circle at 15% 20%,#6366f159,transparent 28%),radial-gradient(circle at 85% 80%,#06b6d440,transparent 30%),#080b1a; }
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.16; background-image:linear-gradient(#ffffff14 1px,transparent 1px),linear-gradient(90deg,#ffffff14 1px,transparent 1px); background-size:34px 34px; }
+    .game-card { position:relative; width:min(100%,620px); padding:34px; text-align:center; border:1px solid #ffffff26; border-radius:28px; background:#0f172ad1; box-shadow:0 28px 80px #00000073; backdrop-filter:blur(16px); }
+    .title { margin:0; font-size:clamp(28px,6vw,44px); letter-spacing:-1px; }
+    .guide { margin:10px 0 26px; color:#a5b4fc; }
+    .status-bar { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
+    .status-box { padding:14px; border-radius:16px; background:#ffffff12; }
+    .label { display:block; margin-bottom:3px; color:#94a3b8; font-size:13px; font-weight:700; letter-spacing:2px; }
+    #score,#timer { font-size:28px; font-weight:900; transition:.2s; }
+    #timer.danger { color:#ff5b70; animation:timerPulse .65s infinite alternate; }
+    .target-area { position:relative; display:grid; place-items:center; min-height:210px; border:2px solid #818cf847; border-radius:24px; background:linear-gradient(145deg,#6366f126,#06b6d412); }
+    .target-caption { position:absolute; top:18px; color:#94a3b8; font-size:13px; font-weight:700; letter-spacing:3px; }
+    #targetChar { font-size:104px; font-weight:900; line-height:1; color:#fff; text-shadow:0 0 28px #818cf8bf; }
+    .input-panel { min-height:95px; margin-top:16px; padding:13px; border-radius:18px; background:#0206178c; }
+    #typedChar { display:inline-block; min-width:52px; font-size:38px; font-weight:900; }
+    #feedback { height:24px; margin-top:2px; font-weight:800; }
+    .correct { color:#45e3a2; } .wrong { color:#ff647c; } .neutral { color:#64748b; }
+    .flash-correct { animation:correctFlash .32s ease; } .flash-wrong { animation:wrongShake .32s ease; }
+    .buttons { display:flex; gap:12px; margin-top:20px; }
+    button { flex:1; padding:14px; border:0; border-radius:14px; color:#fff; font-size:16px; font-weight:800; cursor:pointer; transition:.16s; }
+    button:hover { transform:translateY(-2px); filter:brightness(1.12); } button:disabled { cursor:not-allowed; opacity:.45; transform:none; }
+    #startButton { background:linear-gradient(135deg,#6366f1,#8b5cf6); } #resetButton { background:#334155; }
+    @keyframes timerPulse { to { transform:scale(1.13); text-shadow:0 0 16px #ff5b70cc; } }
+    @keyframes correctFlash { 50% { border-color:#45e3a2; box-shadow:0 0 30px #45e3a240; } }
+    @keyframes wrongShake { 25% { transform:translateX(-7px); border-color:#ff647c; } 50% { transform:translateX(7px); } 75% { transform:translateX(-4px); } }
+    @media(max-width:520px) { .game-card{padding:22px} #targetChar{font-size:82px} .buttons{flex-direction:column} }
+  </style>
+</head>
+<body>
+  <main class="game-card">
+    <h1 class="title">&#9000;&#65039; &#49828;&#54588;&#46300; &#53440;&#51060;&#54609;</h1>
+    <p class="guide">&#54868;&#47732;&#51032; &#47928;&#51088;&#50752; &#46629;&#44057;&#51060; &#51077;&#47141;&#54616;&#49464;&#50836;. &#45824;&#49548;&#47928;&#51088;&#47484; &#44396;&#48516;&#54633;&#45768;&#45796;!</p>
+    <section class="status-bar">
+      <div class="status-box"><span class="label">SCORE</span><strong id="score">0&#51216;</strong></div>
+      <div class="status-box"><span class="label">TIME LEFT</span><strong id="timer">20&#52488;</strong></div>
+    </section>
+    <section class="target-area" id="targetArea"><span class="target-caption">TARGET</span><span id="targetChar">?</span></section>
+    <section class="input-panel" aria-live="polite">
+      <span class="label">YOU TYPED</span><span id="typedChar" class="neutral">-</span>
+      <div id="feedback" class="neutral">&#49884;&#51089; &#48260;&#53948;&#51012; &#45580;&#47084; &#51452;&#49464;&#50836;</div>
+    </section>
+    <div class="buttons">
+      <button id="startButton" type="button">&#44172;&#51076; &#49884;&#51089;</button>
+      <button id="resetButton" type="button">&#45796;&#49884; &#54616;&#44592;</button>
+    </div>
+  </main>
+  <script>
+    let score = 0;
+    let timeLeft = 20;
+    let gameInterval = null;
+    let isGameRunning = false;
+
+    const targetCharElement = document.getElementById('targetChar');
+    const targetAreaElement = document.getElementById('targetArea');
+    const scoreElement = document.getElementById('score');
+    const timerElement = document.getElementById('timer');
+    const typedCharElement = document.getElementById('typedChar');
+    const feedbackElement = document.getElementById('feedback');
+    const startButton = document.getElementById('startButton');
+    const resetButton = document.getElementById('resetButton');
+
+    function getRandomChar() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      return chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    function setNewTargetChar() {
+      targetCharElement.textContent = getRandomChar();
+    }
+
+    function showResult(isCorrect) {
+      const resultClass = isCorrect ? 'correct' : 'wrong';
+      typedCharElement.className = resultClass;
+      feedbackElement.className = resultClass;
+      feedbackElement.textContent = isCorrect ? '\uC815\uB2F5! +10\uC810' : '\uD2C0\uB838\uC5B4\uC694! -5\uC810';
+      targetAreaElement.classList.remove('flash-correct','flash-wrong');
+      void targetAreaElement.offsetWidth;
+      targetAreaElement.classList.add(isCorrect ? 'flash-correct' : 'flash-wrong');
+    }
+
+    function checkInput(event) {
+      if (!isGameRunning || event.key.length !== 1) return;
+      const inputChar = event.key;
+      const isCorrect = inputChar === targetCharElement.textContent;
+      typedCharElement.textContent = inputChar;
+      score += isCorrect ? 10 : -5;
+      scoreElement.textContent = score + '\uC810';
+      showResult(isCorrect);
+      setNewTargetChar();
+    }
+
+    function updateTimerDisplay() {
+      timerElement.textContent = timeLeft + '\uCD08';
+      timerElement.classList.toggle('danger', timeLeft <= 5 && timeLeft > 0);
+    }
+
+    function updateTimer() {
+      timeLeft -= 1;
+      updateTimerDisplay();
+      if (timeLeft <= 0) endGame();
+    }
+
+    function endGame() {
+      clearInterval(gameInterval);
+      gameInterval = null;
+      isGameRunning = false;
+      targetCharElement.textContent = 'END';
+      timerElement.classList.remove('danger');
+      typedCharElement.textContent = '-';
+      typedCharElement.className = 'neutral';
+      feedbackElement.className = 'wrong';
+      feedbackElement.textContent = '\uAC8C\uC784 \uC885\uB8CC! \uCD5C\uC885 \uC810\uC218\uB294 ' + score + '\uC810\uC785\uB2C8\uB2E4.';
+      startButton.disabled = false;
+      startButton.textContent = '\uD55C \uBC88 \uB354!';
+    }
+
+    function startGame() {
+      if (isGameRunning) return;
+      score = 0;
+      timeLeft = 20;
+      isGameRunning = true;
+      scoreElement.textContent = '0\uC810';
+      typedCharElement.textContent = '-';
+      typedCharElement.className = 'neutral';
+      feedbackElement.textContent = '\uD0A4\uBCF4\uB4DC \uC785\uB825\uC744 \uAE30\uB2E4\uB9AC\uB294 \uC911...';
+      feedbackElement.className = 'neutral';
+      startButton.disabled = true;
+      startButton.textContent = '\uAC8C\uC784 \uC9C4\uD589 \uC911';
+      updateTimerDisplay();
+      setNewTargetChar();
+      gameInterval = setInterval(updateTimer,1000);
+    }
+
+    function resetGame() {
+      clearInterval(gameInterval);
+      gameInterval = null;
+      score = 0;
+      timeLeft = 20;
+      isGameRunning = false;
+      scoreElement.textContent = '0\uC810';
+      targetCharElement.textContent = '?';
+      typedCharElement.textContent = '-';
+      typedCharElement.className = 'neutral';
+      feedbackElement.textContent = '\uC2DC\uC791 \uBC84\uD2BC\uC744 \uB20C\uB7EC \uC8FC\uC138\uC694';
+      feedbackElement.className = 'neutral';
+      timerElement.classList.remove('danger');
+      updateTimerDisplay();
+      startButton.disabled = false;
+      startButton.textContent = '\uAC8C\uC784 \uC2DC\uC791';
+    }
+
+    startButton.addEventListener('click', startGame);
+    resetButton.addEventListener('click', resetGame);
+    document.addEventListener('keydown', checkInput);
+  </script>
+</body>
+</html>
