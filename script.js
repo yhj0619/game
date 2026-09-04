@@ -116,6 +116,10 @@ const targetCaptionElement = document.getElementById('targetCaption');
 const inputLabelElement = document.getElementById('inputLabel');
 const modeChoices = Array.from(document.querySelectorAll('.mode-choice'));
 const modeCharactersElement = document.getElementById('modeCharacters');
+const modeCharacterButton = document.getElementById('modeCharacterButton');
+
+/* 모달을 연 버튼으로 포커스를 되돌리기 위해 기억해 둔다. */
+let modalOpener = characterButton;
 
 /* ---------- 유틸 ---------- */
 function getRandomChar() {
@@ -235,6 +239,7 @@ function buildModeCharacters() {
   CHARACTERS.forEach((character) => {
     const card = document.createElement('span');
     card.className = 'main-character';
+    card.dataset.id = character.id;
 
     const media = document.createElement('span');
     media.className = 'main-character-video';
@@ -280,6 +285,9 @@ function markSelectedCharacterCard() {
   Array.from(characterListElement.children).forEach((card) => {
     card.classList.toggle('selected', card.dataset.id === currentCharacter.id);
   });
+  Array.from(modeCharactersElement.children).forEach((card) => {
+    card.classList.toggle('selected', card.dataset.id === currentCharacter.id);
+  });
 }
 
 function buildCharacterList() {
@@ -313,13 +321,14 @@ function buildCharacterList() {
   });
 }
 
-function openCharacterModal() {
+function openCharacterModal(opener) {
+  modalOpener = opener || characterButton;
   characterModal.hidden = false;
 }
 
 function closeCharacterModal() {
   characterModal.hidden = true;
-  characterButton.focus();
+  if (modalOpener && modalOpener.focus) modalOpener.focus();
 }
 
 function isModalOpen() {
@@ -531,7 +540,8 @@ startButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', resetGame);
 changeModeButton.addEventListener('click', showModeScreen);
 modeChoices.forEach((button) => button.addEventListener('click', () => setGameMode(button.dataset.mode)));
-characterButton.addEventListener('click', openCharacterModal);
+characterButton.addEventListener('click', () => openCharacterModal(characterButton));
+modeCharacterButton.addEventListener('click', () => openCharacterModal(modeCharacterButton));
 document.addEventListener('keydown', checkInput);
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && isModalOpen()) closeCharacterModal();
