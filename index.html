@@ -4,35 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Speed Typing Game</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { min-height:100vh; margin:0; padding:24px; display:grid; place-items:center; overflow:hidden; color:#eef2ff; font-family:Arial,"Malgun Gothic",sans-serif; background:radial-gradient(circle at 15% 20%,#6366f159,transparent 28%),radial-gradient(circle at 85% 80%,#06b6d440,transparent 30%),#080b1a; }
-    body::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.16; background-image:linear-gradient(#ffffff14 1px,transparent 1px),linear-gradient(90deg,#ffffff14 1px,transparent 1px); background-size:34px 34px; }
-    .game-card { position:relative; width:min(100%,620px); padding:34px; text-align:center; border:1px solid #ffffff26; border-radius:28px; background:#0f172ad1; box-shadow:0 28px 80px #00000073; backdrop-filter:blur(16px); }
-    .title { margin:0; font-size:clamp(28px,6vw,44px); letter-spacing:-1px; }
-    .guide { margin:10px 0 26px; color:#a5b4fc; }
-    .status-bar { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
-    .status-box { padding:14px; border-radius:16px; background:#ffffff12; }
-    .label { display:block; margin-bottom:3px; color:#94a3b8; font-size:13px; font-weight:700; letter-spacing:2px; }
-    #score,#timer { font-size:28px; font-weight:900; transition:.2s; }
-    #timer.danger { color:#ff5b70; animation:timerPulse .65s infinite alternate; }
-    .target-area { position:relative; display:grid; place-items:center; min-height:210px; border:2px solid #818cf847; border-radius:24px; background:linear-gradient(145deg,#6366f126,#06b6d412); }
-    .target-caption { position:absolute; top:18px; color:#94a3b8; font-size:13px; font-weight:700; letter-spacing:3px; }
-    #targetChar { font-size:104px; font-weight:900; line-height:1; color:#fff; text-shadow:0 0 28px #818cf8bf; }
-    .input-panel { min-height:95px; margin-top:16px; padding:13px; border-radius:18px; background:#0206178c; }
-    #typedChar { display:inline-block; min-width:52px; font-size:38px; font-weight:900; }
-    #feedback { height:24px; margin-top:2px; font-weight:800; }
-    .correct { color:#45e3a2; } .wrong { color:#ff647c; } .neutral { color:#64748b; }
-    .flash-correct { animation:correctFlash .32s ease; } .flash-wrong { animation:wrongShake .32s ease; }
-    .buttons { display:flex; gap:12px; margin-top:20px; }
-    button { flex:1; padding:14px; border:0; border-radius:14px; color:#fff; font-size:16px; font-weight:800; cursor:pointer; transition:.16s; }
-    button:hover { transform:translateY(-2px); filter:brightness(1.12); } button:disabled { cursor:not-allowed; opacity:.45; transform:none; }
-    #startButton { background:linear-gradient(135deg,#6366f1,#8b5cf6); } #resetButton { background:#334155; }
-    @keyframes timerPulse { to { transform:scale(1.13); text-shadow:0 0 16px #ff5b70cc; } }
-    @keyframes correctFlash { 50% { border-color:#45e3a2; box-shadow:0 0 30px #45e3a240; } }
-    @keyframes wrongShake { 25% { transform:translateX(-7px); border-color:#ff647c; } 50% { transform:translateX(7px); } 75% { transform:translateX(-4px); } }
-    @media(max-width:520px) { .game-card{padding:22px} #targetChar{font-size:82px} .buttons{flex-direction:column} }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="game-card">
