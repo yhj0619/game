@@ -6,6 +6,11 @@ const FEVER_COMBO = 5;     // 피버 진입에 필요한 연속 정답 수
 const FEVER_MULTIPLIER = 2;
 const FEVER_PLAYBACK_RATE = 1.6;
 const STORAGE_KEY = 'typing-game-character';
+const WORDS = [
+  'APPLE', 'BEACH', 'CLOUD', 'DREAM', 'EARTH', 'FLOWER', 'GREEN', 'HAPPY',
+  'ISLAND', 'JELLY', 'LEAF', 'MUSIC', 'OCEAN', 'PANDA', 'RIVER', 'SMILE',
+  'STAR', 'SWEET', 'TREE', 'WATER'
+];
 
 /* ---------------------------------------------------------
    캐릭터 테이블
@@ -82,6 +87,8 @@ let isGameRunning = false;
 let gameInterval = null;
 let bannerTimer = null;
 let currentCharacter = CHARACTERS[0];
+let gameMode = 'char';
+let typedWord = '';
 const characterVideos = {};
 
 const targetCharElement = document.getElementById('targetChar');
@@ -92,6 +99,9 @@ const typedCharElement = document.getElementById('typedChar');
 const feedbackElement = document.getElementById('feedback');
 const startButton = document.getElementById('startButton');
 const resetButton = document.getElementById('resetButton');
+const changeModeButton = document.getElementById('changeModeButton');
+const modeScreen = document.getElementById('modeScreen');
+const gameScreen = document.getElementById('gameScreen');
 const nookMediaElement = document.getElementById('nookMedia');
 const nookRingElement = document.getElementById('nookRing');
 const multiplierElement = document.getElementById('multiplier');
@@ -101,6 +111,11 @@ const characterButton = document.getElementById('characterButton');
 const characterModal = document.getElementById('characterModal');
 const characterListElement = document.getElementById('characterList');
 const stampElements = Array.from(document.querySelectorAll('#stamps .stamp'));
+const guideElement = document.getElementById('guide');
+const targetCaptionElement = document.getElementById('targetCaption');
+const inputLabelElement = document.getElementById('inputLabel');
+const modeChoices = Array.from(document.querySelectorAll('.mode-choice'));
+const modeCharactersElement = document.getElementById('modeCharacters');
 
 /* ---------- 유틸 ---------- */
 function getRandomChar() {
@@ -109,7 +124,43 @@ function getRandomChar() {
 }
 
 function setNewTargetChar() {
-  targetCharElement.textContent = getRandomChar();
+  if (gameMode === 'word') {
+    let nextWord;
+    do {
+      nextWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+    } while (WORDS.length > 1 && nextWord === targetCharElement.textContent);
+    targetCharElement.textContent = nextWord;
+  } else {
+    targetCharElement.textContent = getRandomChar();
+  }
+}
+
+function setGameMode(mode) {
+  if (isGameRunning || (mode !== 'char' && mode !== 'word')) return;
+  gameMode = mode;
+  typedWord = '';
+  document.body.dataset.mode = mode;
+  guideElement.textContent = mode === 'word'
+    ? '화면의 단어를 입력하고 Enter를 눌러 줘! 대소문자는 상관없다구.'
+    : '화면의 문자와 똑같이 입력해 줘! 대소문자를 구분한다구.';
+  targetCaptionElement.textContent = mode === 'word' ? '이 단어를 입력!' : '이 글자를 입력!';
+  inputLabelElement.textContent = mode === 'word' ? '내가 입력한 단어' : '내가 누른 키';
+  targetCharElement.textContent = '?';
+  typedCharElement.textContent = '-';
+  typedCharElement.className = 'neutral';
+  modeScreen.hidden = true;
+  gameScreen.hidden = false;
+  resetGame();
+  startButton.focus();
+}
+
+function showModeScreen() {
+  clearBoard();
+  score = 0;
+  timeLeft = GAME_TIME;
+  gameScreen.hidden = true;
+  modeScreen.hidden = false;
+  modeChoices[0].focus();
 }
 
 function restartAnimation(element, className) {
@@ -177,6 +228,22 @@ function buildCharacterStage() {
     const video = createCharacterVideo(character);
     characterVideos[character.id] = video;
     nookMediaElement.appendChild(video);
+  });
+}
+
+function buildModeCharacters() {
+  CHARACTERS.forEach((character) => {
+    const card = document.createElement('span');
+    card.className = 'main-character';
+
+    const media = document.createElement('span');
+    media.className = 'main-character-video';
+    media.appendChild(createCharacterVideo(character));
+
+    const name = document.createElement('span');
+    name.textContent = character.name;
+    card.append(media, name);
+    modeCharactersElement.appendChild(card);
   });
 }
 
@@ -346,6 +413,37 @@ function handleWrong() {
 
 function checkInput(event) {
   if (!isGameRunning || isModalOpen()) return;
+
+  if (gameMode === 'word') {
+    if (event.key === 'Backspace') {
+      event.preventDefault();
+      typedWord = typedWord.slice(0, -1);
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      if (!typedWord) return;
+      if (typedWord.toUpperCase() === targetCharElement.textContent) {
+        typedCharElement.className = 'correct';
+        handleCorrect();
+      } else {
+        typedCharElement.className = 'wrong';
+        handleWrong();
+      }
+      typedWord = '';
+      setNewTargetChar();
+      return;
+    } else if (/^[a-zA-Z]$/.test(event.key)) {
+      typedWord += event.key.toUpperCase();
+    } else {
+      return;
+    }
+
+    typedCharElement.textContent = typedWord || '-';
+    typedCharElement.className = typedWord && targetCharElement.textContent.startsWith(typedWord)
+      ? 'neutral'
+      : typedWord ? 'wrong' : 'neutral';
+    return;
+  }
+
   if (event.key.length !== 1 || event.ctrlKey || event.metaKey || event.altKey) return;
 
   const inputChar = event.key;
@@ -385,6 +483,7 @@ function clearBoard() {
   typedCharElement.textContent = '-';
   typedCharElement.className = 'neutral';
   timerElement.classList.remove('danger');
+  typedWord = '';
 }
 
 function endGame() {
@@ -430,6 +529,8 @@ function resetGame() {
 /* ---------- 초기화 ---------- */
 startButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', resetGame);
+changeModeButton.addEventListener('click', showModeScreen);
+modeChoices.forEach((button) => button.addEventListener('click', () => setGameMode(button.dataset.mode)));
 characterButton.addEventListener('click', openCharacterModal);
 document.addEventListener('keydown', checkInput);
 document.addEventListener('keydown', (event) => {
@@ -440,6 +541,7 @@ Array.from(characterModal.querySelectorAll('[data-close]')).forEach((element) =>
 });
 
 buildCharacterStage();
+buildModeCharacters();
 buildCharacterList();
 applyCharacter(readStoredCharacterId());
-resetGame();
+document.body.dataset.mode = gameMode;

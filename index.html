@@ -9,7 +9,39 @@
 <body>
   <div id="feverBanner" aria-hidden="true">FEVER!</div>
 
-  <main class="game-card">
+  <main id="modeScreen" class="mode-screen">
+    <section class="mode-hero" aria-labelledby="mainTitle">
+      <div class="hero-sky" aria-hidden="true">
+        <span class="hero-cloud cloud-one"></span>
+        <span class="hero-cloud cloud-two"></span>
+      </div>
+      <div class="hero-title-board">
+        <span class="hero-leaf" aria-hidden="true"></span>
+        <p>동물의 숲</p>
+        <h1 id="mainTitle">스피드 타이핑</h1>
+      </div>
+      <div id="modeCharacters" class="mode-characters" aria-label="함께 플레이할 캐릭터"></div>
+    </section>
+
+    <div class="mode-menu">
+      <p class="mode-question">어떤 방식으로 연습할까?</p>
+      <div class="mode-choice-list" aria-label="게임 모드 선택">
+        <button class="mode-choice" type="button" data-mode="char">
+          <span class="choice-icon" aria-hidden="true">A</span>
+          <span class="choice-copy"><strong>한 글자</strong><small>글자를 하나씩 빠르게 입력해요</small></span>
+          <span class="choice-arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="mode-choice" type="button" data-mode="word">
+          <span class="choice-icon word-icon" aria-hidden="true">ABC</span>
+          <span class="choice-copy"><strong>단어</strong><small>단어를 완성하고 Enter!</small></span>
+          <span class="choice-arrow" aria-hidden="true">›</span>
+        </button>
+      </div>
+      <p class="mode-tip">캐릭터와 함께 즐겁게 타이핑해 봐!</p>
+    </div>
+  </main>
+
+  <main id="gameScreen" class="game-card" hidden>
     <div class="card-header">
       <button id="characterButton" class="character-switch" type="button" aria-haspopup="dialog">
         <span class="switch-coin" aria-hidden="true"></span>
@@ -19,7 +51,7 @@
     </div>
 
     <h1 class="title"><span class="title-motif" aria-hidden="true"></span><span id="titleName">너굴</span> 스피드 타이핑</h1>
-    <p class="guide">화면의 문자와 똑같이 입력해 줘! 대소문자를 구분한다구.</p>
+    <p id="guide" class="guide">화면의 문자와 똑같이 입력해 줘! 대소문자를 구분한다구.</p>
 
     <section class="nook-stage">
       <div class="nook-frame">
@@ -55,18 +87,19 @@
     </section>
 
     <section class="target-area" id="targetArea">
-      <span class="target-caption">이 글자를 입력!</span>
+      <span id="targetCaption" class="target-caption">이 글자를 입력!</span>
       <span id="targetChar">?</span>
     </section>
 
     <section class="input-panel">
-      <span class="label">내가 누른 키</span>
+      <span id="inputLabel" class="label">내가 누른 키</span>
       <span id="typedChar" class="neutral">-</span>
     </section>
 
     <div class="buttons">
       <button id="startButton" type="button">게임 시작</button>
       <button id="resetButton" type="button">다시 하기</button>
+      <button id="changeModeButton" type="button">모드 변경</button>
     </div>
   </main>
 
