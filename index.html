@@ -3,21 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>너굴 스피드 타이핑</title>
+  <title>동물의숲 스피드 타이핑</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="feverBanner" aria-hidden="true">FEVER!</div>
 
   <main class="game-card">
-    <h1 class="title">🍃 너굴 스피드 타이핑</h1>
+    <button id="characterButton" class="icon-button" type="button" aria-haspopup="dialog" title="캐릭터 변경">
+      <span aria-hidden="true">⚙</span>
+      <span class="sr-only">캐릭터 변경</span>
+    </button>
+
+    <h1 class="title"><span class="title-motif" aria-hidden="true"></span><span id="titleName">너굴</span> 스피드 타이핑</h1>
     <p class="guide">화면의 문자와 똑같이 입력해 줘! 대소문자를 구분한다구.</p>
 
     <section class="nook-stage">
       <div class="nook-frame">
-        <video id="nook" class="idle"
-               src="해당_너구리_캐릭터가_손을_흔들며_눈을_깜빡_거리는_실.mp4"
-               autoplay loop muted playsinline></video>
+        <div class="nook-media" id="nookMedia"></div>
         <span class="nook-ring" id="nookRing" aria-hidden="true"></span>
       </div>
       <div class="bubble" aria-live="polite">
@@ -39,11 +42,11 @@
     <section class="combo-bar">
       <span class="label">콤보</span>
       <div class="stamps" id="stamps" aria-hidden="true">
-        <span class="stamp">🍃</span>
-        <span class="stamp">🍃</span>
-        <span class="stamp">🍃</span>
-        <span class="stamp">🍃</span>
-        <span class="stamp">🍃</span>
+        <span class="stamp"></span>
+        <span class="stamp"></span>
+        <span class="stamp"></span>
+        <span class="stamp"></span>
+        <span class="stamp"></span>
       </div>
       <span id="multiplier" class="multiplier">×1</span>
     </section>
@@ -63,6 +66,16 @@
       <button id="resetButton" type="button">다시 하기</button>
     </div>
   </main>
+
+  <div id="characterModal" class="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h2 id="modalTitle">캐릭터 선택</h2>
+      <p class="modal-guide">함께 타이핑할 친구를 골라 줘!</p>
+      <div class="character-list" id="characterList"></div>
+      <button class="modal-close" type="button" data-close>닫기</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
