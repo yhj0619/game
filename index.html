@@ -42,10 +42,13 @@
   </main>
 
   <main id="gameScreen" class="game-card" hidden>
-    <button id="characterButton" class="icon-button" type="button" aria-haspopup="dialog" title="캐릭터 변경">
-      <span aria-hidden="true">⚙</span>
-      <span class="sr-only">캐릭터 변경</span>
-    </button>
+    <div class="card-header">
+      <button id="characterButton" class="character-switch" type="button" aria-haspopup="dialog">
+        <span class="switch-coin" aria-hidden="true"></span>
+        캐릭터 바꾸기
+        <span class="switch-chevron" aria-hidden="true">▾</span>
+      </button>
+    </div>
 
     <h1 class="title"><span class="title-motif" aria-hidden="true"></span><span id="titleName">너굴</span> 스피드 타이핑</h1>
     <p id="guide" class="guide">화면의 문자와 똑같이 입력해 줘! 대소문자를 구분한다구.</p>
