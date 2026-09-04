@@ -130,7 +130,7 @@ body.fever::after { opacity: 1; animation: feverFlow 3.2s linear infinite; }
   position: relative;
   z-index: 1;
   width: min(100%, 640px);
-  padding: 30px 32px 28px;
+  padding: 18px 32px 28px;
   text-align: center;
   border: 6px solid var(--wood);
   border-radius: 34px;
@@ -143,27 +143,38 @@ body.fever .game-card {
   box-shadow: 0 18px 0 var(--gold-deep), 0 0 60px #F5C54288, 0 26px 46px #8A624233;
 }
 
-/* ===== 캐릭터 변경 버튼 (우측 상단) ===== */
-.icon-button {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 42px;
-  height: 42px;
-  padding: 0;
-  flex: none;
-  display: grid;
-  place-items: center;
+/* ===== 캐릭터 변경 버튼 (우측 상단) =====
+   톱니바퀴는 "설정"으로 읽혀서, 지금 캐릭터의 모티프 코인과 동작을
+   그대로 드러내는 알약 버튼으로 둔다. 코인은 테마 변수라 자동으로 바뀐다. */
+.card-header { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+
+.character-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px 6px 7px;
   border: 3px solid var(--accent);
-  border-radius: 50%;
+  border-radius: 999px;
   background: var(--panel-bg);
   color: var(--accent-deep);
-  font-size: 19px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
   line-height: 1;
   cursor: pointer;
   transition: .18s;
 }
-.icon-button:hover { transform: rotate(45deg); filter: none; background: var(--accent-pale); }
+.character-switch:hover { background: var(--accent-pale); transform: translateY(-2px); }
+.character-switch:active { transform: translateY(1px); }
+
+.switch-coin {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--motif-coin) center/contain no-repeat;
+  box-shadow: 0 1px 0 #0000001f;
+}
+.switch-chevron { font-size: 10px; opacity: .75; }
 
 .title { margin: 0; font-size: clamp(24px, 5.2vw, 38px); color: var(--ink); letter-spacing: -1px; }
 .title-motif {
@@ -466,7 +477,6 @@ body.fever #targetChar { color: var(--gold-deep); text-shadow: 0 0 26px #F5C542,
 
 @media (max-width: 560px) {
   .game-card { padding: 22px 18px; }
-  .icon-button { top: 12px; right: 12px; }
   .nook-stage { flex-direction: column; }
   .bubble::before, .bubble::after { display: none; }
   .nook-frame { width: 112px; height: 112px; }
