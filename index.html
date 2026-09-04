@@ -3,135 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Speed Typing Game</title>
+  <title>너굴 스피드 타이핑</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="feverBanner" aria-hidden="true">FEVER!</div>
+
   <main class="game-card">
-    <h1 class="title">&#9000;&#65039; &#49828;&#54588;&#46300; &#53440;&#51060;&#54609;</h1>
-    <p class="guide">&#54868;&#47732;&#51032; &#47928;&#51088;&#50752; &#46629;&#44057;&#51060; &#51077;&#47141;&#54616;&#49464;&#50836;. &#45824;&#49548;&#47928;&#51088;&#47484; &#44396;&#48516;&#54633;&#45768;&#45796;!</p>
+    <h1 class="title">🍃 너굴 스피드 타이핑</h1>
+    <p class="guide">화면의 문자와 똑같이 입력해 줘! 대소문자를 구분한다구.</p>
+
+    <section class="nook-stage">
+      <div class="nook-frame">
+        <video id="nook" class="idle"
+               src="해당_너구리_캐릭터가_손을_흔들며_눈을_깜빡_거리는_실.mp4"
+               autoplay loop muted playsinline></video>
+        <span class="nook-ring" id="nookRing" aria-hidden="true"></span>
+      </div>
+      <div class="bubble" aria-live="polite">
+        <p id="feedback" class="neutral">시작 버튼을 눌러 줘!</p>
+      </div>
+    </section>
+
     <section class="status-bar">
-      <div class="status-box"><span class="label">SCORE</span><strong id="score">0&#51216;</strong></div>
-      <div class="status-box"><span class="label">TIME LEFT</span><strong id="timer">20&#52488;</strong></div>
+      <div class="status-box">
+        <span class="label">벨</span>
+        <strong id="score">0벨</strong>
+      </div>
+      <div class="status-box">
+        <span class="label">남은 시간</span>
+        <strong id="timer">20초</strong>
+      </div>
     </section>
-    <section class="target-area" id="targetArea"><span class="target-caption">TARGET</span><span id="targetChar">?</span></section>
-    <section class="input-panel" aria-live="polite">
-      <span class="label">YOU TYPED</span><span id="typedChar" class="neutral">-</span>
-      <div id="feedback" class="neutral">&#49884;&#51089; &#48260;&#53948;&#51012; &#45580;&#47084; &#51452;&#49464;&#50836;</div>
+
+    <section class="combo-bar">
+      <span class="label">콤보</span>
+      <div class="stamps" id="stamps" aria-hidden="true">
+        <span class="stamp">🍃</span>
+        <span class="stamp">🍃</span>
+        <span class="stamp">🍃</span>
+        <span class="stamp">🍃</span>
+        <span class="stamp">🍃</span>
+      </div>
+      <span id="multiplier" class="multiplier">×1</span>
     </section>
+
+    <section class="target-area" id="targetArea">
+      <span class="target-caption">이 글자를 입력!</span>
+      <span id="targetChar">?</span>
+    </section>
+
+    <section class="input-panel">
+      <span class="label">내가 누른 키</span>
+      <span id="typedChar" class="neutral">-</span>
+    </section>
+
     <div class="buttons">
-      <button id="startButton" type="button">&#44172;&#51076; &#49884;&#51089;</button>
-      <button id="resetButton" type="button">&#45796;&#49884; &#54616;&#44592;</button>
+      <button id="startButton" type="button">게임 시작</button>
+      <button id="resetButton" type="button">다시 하기</button>
     </div>
   </main>
-  <script>
-    let score = 0;
-    let timeLeft = 20;
-    let gameInterval = null;
-    let isGameRunning = false;
 
-    const targetCharElement = document.getElementById('targetChar');
-    const targetAreaElement = document.getElementById('targetArea');
-    const scoreElement = document.getElementById('score');
-    const timerElement = document.getElementById('timer');
-    const typedCharElement = document.getElementById('typedChar');
-    const feedbackElement = document.getElementById('feedback');
-    const startButton = document.getElementById('startButton');
-    const resetButton = document.getElementById('resetButton');
-
-    function getRandomChar() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      return chars[Math.floor(Math.random() * chars.length)];
-    }
-
-    function setNewTargetChar() {
-      targetCharElement.textContent = getRandomChar();
-    }
-
-    function showResult(isCorrect) {
-      const resultClass = isCorrect ? 'correct' : 'wrong';
-      typedCharElement.className = resultClass;
-      feedbackElement.className = resultClass;
-      feedbackElement.textContent = isCorrect ? '\uC815\uB2F5! +10\uC810' : '\uD2C0\uB838\uC5B4\uC694! -5\uC810';
-      targetAreaElement.classList.remove('flash-correct','flash-wrong');
-      void targetAreaElement.offsetWidth;
-      targetAreaElement.classList.add(isCorrect ? 'flash-correct' : 'flash-wrong');
-    }
-
-    function checkInput(event) {
-      if (!isGameRunning || event.key.length !== 1) return;
-      const inputChar = event.key;
-      const isCorrect = inputChar === targetCharElement.textContent;
-      typedCharElement.textContent = inputChar;
-      score += isCorrect ? 10 : -5;
-      scoreElement.textContent = score + '\uC810';
-      showResult(isCorrect);
-      setNewTargetChar();
-    }
-
-    function updateTimerDisplay() {
-      timerElement.textContent = timeLeft + '\uCD08';
-      timerElement.classList.toggle('danger', timeLeft <= 5 && timeLeft > 0);
-    }
-
-    function updateTimer() {
-      timeLeft -= 1;
-      updateTimerDisplay();
-      if (timeLeft <= 0) endGame();
-    }
-
-    function endGame() {
-      clearInterval(gameInterval);
-      gameInterval = null;
-      isGameRunning = false;
-      targetCharElement.textContent = 'END';
-      timerElement.classList.remove('danger');
-      typedCharElement.textContent = '-';
-      typedCharElement.className = 'neutral';
-      feedbackElement.className = 'wrong';
-      feedbackElement.textContent = '\uAC8C\uC784 \uC885\uB8CC! \uCD5C\uC885 \uC810\uC218\uB294 ' + score + '\uC810\uC785\uB2C8\uB2E4.';
-      startButton.disabled = false;
-      startButton.textContent = '\uD55C \uBC88 \uB354!';
-    }
-
-    function startGame() {
-      if (isGameRunning) return;
-      score = 0;
-      timeLeft = 20;
-      isGameRunning = true;
-      scoreElement.textContent = '0\uC810';
-      typedCharElement.textContent = '-';
-      typedCharElement.className = 'neutral';
-      feedbackElement.textContent = '\uD0A4\uBCF4\uB4DC \uC785\uB825\uC744 \uAE30\uB2E4\uB9AC\uB294 \uC911...';
-      feedbackElement.className = 'neutral';
-      startButton.disabled = true;
-      startButton.textContent = '\uAC8C\uC784 \uC9C4\uD589 \uC911';
-      updateTimerDisplay();
-      setNewTargetChar();
-      gameInterval = setInterval(updateTimer,1000);
-    }
-
-    function resetGame() {
-      clearInterval(gameInterval);
-      gameInterval = null;
-      score = 0;
-      timeLeft = 20;
-      isGameRunning = false;
-      scoreElement.textContent = '0\uC810';
-      targetCharElement.textContent = '?';
-      typedCharElement.textContent = '-';
-      typedCharElement.className = 'neutral';
-      feedbackElement.textContent = '\uC2DC\uC791 \uBC84\uD2BC\uC744 \uB20C\uB7EC \uC8FC\uC138\uC694';
-      feedbackElement.className = 'neutral';
-      timerElement.classList.remove('danger');
-      updateTimerDisplay();
-      startButton.disabled = false;
-      startButton.textContent = '\uAC8C\uC784 \uC2DC\uC791';
-    }
-
-    startButton.addEventListener('click', startGame);
-    resetButton.addEventListener('click', resetGame);
-    document.addEventListener('keydown', checkInput);
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
